@@ -10,7 +10,7 @@ class _Card extends StatefulWidget {
   final VoidCallback? onTap;
 
   const _Card(this.text, {
-    required this.icon,
+    this.icon = Icons.emoji_emotions,
     required this.descriptionText,
     this.imageUrl,
     this.onLike,
@@ -73,21 +73,21 @@ class _CardState extends State<_Card> {
                           errorBuilder: (_, __, ___,) => const Placeholder(),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.only(topRight: Radius.circular(20),
-                            ),
-                          ),
-                          padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
-                          child: Text(
-                            'approved',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color:Colors.black),
-                          ),
-                        ),
-                      )
+                      //Align(
+                        //alignment: Alignment.bottomLeft,
+                        //child: Container(
+                          //decoration: const BoxDecoration(
+                            //color: Colors.green,
+                            //borderRadius: BorderRadius.only(topRight: Radius.circular(20),
+                            //),
+                          //),
+                         // padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
+                          //child: Text(
+                            //'approved',
+                            //style: Theme.of(context).textTheme.bodyMedium?.copyWith(color:Colors.black),
+                          //),
+                        //),
+                      //)
                     ],
                   )
                 ),

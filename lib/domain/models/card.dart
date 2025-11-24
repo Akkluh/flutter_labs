@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-class CardData{
+class CardData {
   final String text;
   final String descriptionText;
   final IconData icon;
   final String? imageUrl;
-  CardData({required this.text,
-    required this.descriptionText,
-    required this.icon,
-    this.imageUrl,});
+
+  CardData(
+      this.text, {
+        required this.descriptionText,
+        this.icon = Icons.ac_unit_outlined,
+        this.imageUrl,
+      });
 }
