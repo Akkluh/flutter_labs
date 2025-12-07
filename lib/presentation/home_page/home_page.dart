@@ -1,8 +1,12 @@
+import 'package:breadpolitech/components/utils/debounce.dart';
 import 'package:breadpolitech/data/repository/gif_repository.dart';
-import 'package:breadpolitech/data/repository/mock_repository.dart';
 import 'package:breadpolitech/presentation/details_page/details_page.dart';
+import 'package:breadpolitech/presentation/home_page/bloc/bloc.dart';
+import 'package:breadpolitech/presentation/home_page/bloc/events.dart';
+import 'package:breadpolitech/presentation/home_page/bloc/state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/models/card.dart';
 part 'card.dart';
@@ -32,13 +36,34 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
   final searchController = TextEditingController();
+  final scrollController = ScrollController();
   late Future<List<CardData>?> data;
 
   final repo = GifRepository();
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      context.read<HomeBloc>().add(const HomeLoadDataEvent());
+    });
+    scrollController.addListener(_onNextPageListener);
     super.initState();
-    data = repo.loadData(q: 'funny');
+  }
+  void _onNextPageListener() {
+    if (scrollController.offset >=
+        scrollController.position.maxScrollExtent) {
+      final bloc = context.read<HomeBloc>();
+      if (!bloc.state.isPaginationLoading) {
+        bloc.add(HomeLoadDataEvent(
+          search: searchController.text,
+          nextPos: bloc.state.data?.nextPos,
+        ));
+      }
+    }
+  }
+  @override
+  void dispose(){
+    searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -51,39 +76,49 @@ class _BodyState extends State<Body> {
             padding: const EdgeInsets.all(12),
             child: CupertinoSearchTextField(
               controller: searchController,
-              onSubmitted: (search) {
-                setState(() {
-                  data = repo.loadData(q: search);
-                });
-              },
+              onChanged: (search) {
+                  Debounce.run(() => context.read<HomeBloc>().add(HomeLoadDataEvent(search: search)));
+                },
             ),
           ),
-          Expanded(
-            child: Center(
-              child: FutureBuilder<List<CardData>?>(
-                future: data,
-                builder: (context, snapshot) => SingleChildScrollView(
-                  child: snapshot.hasData
-                      ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: snapshot.data?.map((data) {
-                      return _Card.fromData(
-                        data,
-                        onLike: (String title, bool isLiked) =>
-                            _showSnackBar(context, title, isLiked),
-                        onTap: () => _navToDetails(context, data),
-                      );
-                    }).toList() ??
-                        [],
-                  )
-                      : const CircularProgressIndicator(),
+          BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) => state.error != null
+                ? Text(
+              state.error ?? '',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.red),
+            )
+                : state.isLoading
+                    ? const CircularProgressIndicator()
+                    : Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: ListView.builder(
+                      controller: scrollController,
+                      padding: EdgeInsets.zero,
+                      itemCount: state.data?.data.length ?? 0,
+                      itemBuilder: (context, index) {
+                        final data = state.data?.data[index];
+                        return data != null
+                            ? _Card.fromData(
+                          data,
+                          onLike: (title, isLiked) =>
+                              _showSnackBar(context, title, isLiked),
+                          onTap: () => _navToDetails(context, data),
+                        )
+                            : const SizedBox.shrink();
+                    },
+                  ),
                 ),
-              ),
             ),
-          ),
+            ),
         ],
       ),
     );
+  }
+
+  Future<void> _onRefresh() {
+    context.read<HomeBloc>().add(HomeLoadDataEvent(search: searchController.text));
+    return Future.value(null);
   }
 
   void _navToDetails(BuildContext context, CardData data) {

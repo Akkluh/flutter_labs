@@ -1,6 +1,7 @@
 // data/mappers/gifs_mapper.dart
 import 'package:breadpolitech/data/dtos/gifs_dto.dart';
 import 'package:breadpolitech/domain/models/card.dart';
+import 'package:breadpolitech/domain/models/home.dart';
 import 'package:flutter/material.dart';
 
 extension GifResultDtoX on GifResultDto {
