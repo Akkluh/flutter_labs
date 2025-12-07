@@ -17,7 +17,7 @@ class GifRepository extends ApiInterface {
     ));
 
   static const String _baseUrl = 'https://tenor.googleapis.com/v2';
-  static const String _apiKey = 'AIzaSyD2a76iLOwzh9PlwZtdipep1-34fm4-dmc';
+  static const String _apiKey = '################################';
 
   @override
   Future<HomeData?> loadData({
