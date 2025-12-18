@@ -23,6 +23,7 @@ extension GifResultDtoX on GifResultDto {
       descriptionText: descriptionText,
       imageUrl: gifUrl,
       icon: Icons.gif_box_outlined,
+      id: id
     );
   }
 }

@@ -6,11 +6,14 @@ import 'package:breadpolitech/presentation/details_page/details_page.dart';
 import 'package:breadpolitech/presentation/home_page/bloc/bloc.dart';
 import 'package:breadpolitech/presentation/home_page/bloc/events.dart';
 import 'package:breadpolitech/presentation/home_page/bloc/state.dart';
+import 'package:breadpolitech/presentation/like_bloc/like_bloc.dart';
+import 'package:breadpolitech/presentation/like_bloc/like_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/models/card.dart';
+import '../like_bloc/like_event.dart';
 import '../locale_bloc/locale_bloc.dart';
 import '../locale_bloc/locale_events.dart';
 import '../locale_bloc/locale_state.dart';
@@ -118,29 +121,38 @@ class _BodyState extends State<Body> {
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.red),
                   )
                 : state.isLoading
-                ? const CircularProgressIndicator()
-                : Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: _onRefresh,
-                      child: ListView.builder(
-                        controller: scrollController,
-                        padding: EdgeInsets.zero,
-                        itemCount: state.data?.data.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final data = state.data?.data[index];
-                          return data != null
-                              ? _Card.fromData(
-                                  data,
-                                  onLike: (title, isLiked) =>
-                                      _showSnackBar(context, title, isLiked),
-                                  onTap: () => _navToDetails(context, data),
-                                )
-                              : const SizedBox.shrink();
+                  ? const CircularProgressIndicator()
+                  : BlocBuilder<LikeBloc, LikeState>(
+                    builder: (context, likeState){
+                    return Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: _onRefresh,
+                        child: ListView.builder(
+                          controller: scrollController,
+                          padding: EdgeInsets.zero,
+                          itemCount: state.data?.data.length ?? 0,
+                          itemBuilder: (context, index) {
+                            final data = state.data?.data[index];
+                            return data != null
+                                ? _Card.fromData(
+                                    data,
+                                    onLike: _onLike,
+                                    isLiked: likeState.likedIds?.contains(data.id) == true,
+                                    onTap: () => _navToDetails(context, data),
+                                  )
+                                : const SizedBox.shrink();
                         },
                       ),
                     ),
-                  ),
+                  );
+                    },
+            ),
           ),
+    BlocBuilder<HomeBloc, HomeState>(
+    builder: (context, state) => state.isPaginationLoading
+    ? const CircularProgressIndicator()
+        : const SizedBox.shrink(),
+    ),
         ],
       ),
     );
@@ -154,6 +166,12 @@ class _BodyState extends State<Body> {
   void _navToDetails(BuildContext context, CardData data) {
     Navigator.push(context, CupertinoPageRoute(builder: (context) => DetailsPage(data)));
   }
+
+  void _onLike(String? id, String title, bool isLiked) {
+    if (id != null) {
+    context.read<LikeBloc>().add(ChangeLikeEvent(id));
+    _showSnackBar(context, title, !isLiked);
+      }}
 
   void _showSnackBar(BuildContext context, String title, bool isLiked) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
