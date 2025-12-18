@@ -8,10 +8,7 @@ class GifsDto {
   final List<GifResultDto> results;
   final String next;
 
-  const GifsDto({
-    required this.results,
-    required this.next,
-  });
+  const GifsDto({required this.results, required this.next});
 
   factory GifsDto.fromJson(Map<String, dynamic> json) => _$GifsDtoFromJson(json);
 }
@@ -40,11 +37,7 @@ class MediaFormatDto {
   final List<int> dims;
   final double? duration;
 
-  const MediaFormatDto({
-    required this.url,
-    required this.dims,
-    this.duration,
-  });
+  const MediaFormatDto({required this.url, required this.dims, this.duration});
 
   factory MediaFormatDto.fromJson(Map<String, dynamic> json) => _$MediaFormatDtoFromJson(json);
 }

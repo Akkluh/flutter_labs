@@ -1,4 +1,3 @@
-
 import 'package:breadpolitech/domain/models/home.dart';
 import 'package:equatable/equatable.dart';
 import 'package:breadpolitech/domain/models/card.dart';
@@ -17,7 +16,7 @@ class HomeState extends Equatable {
     this.isPaginationLoading = false,
     this.nextPos,
     this.currentQuery = 'funny',
-    this.error
+    this.error,
   });
 
   HomeState copyWith({
@@ -26,7 +25,7 @@ class HomeState extends Equatable {
     bool? isPaginationLoading,
     String? nextPos,
     String? currentQuery,
-    String? error
+    String? error,
   }) {
     return HomeState(
       data: data ?? this.data,
@@ -34,7 +33,7 @@ class HomeState extends Equatable {
       isPaginationLoading: isPaginationLoading ?? this.isPaginationLoading,
       nextPos: nextPos ?? this.nextPos,
       currentQuery: currentQuery ?? this.currentQuery,
-      error: error ?? this.error
+      error: error ?? this.error,
     );
   }
 

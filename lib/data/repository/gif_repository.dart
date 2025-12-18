@@ -10,21 +10,15 @@ import '../../domain/models/card.dart';
 
 class GifRepository extends ApiInterface {
   static final Dio _dio = Dio()
-    ..interceptors.add(PrettyDioLogger(
-      requestHeader: true,
-      requestBody: true,
-      responseBody: false,
-    ));
+    ..interceptors.add(
+      PrettyDioLogger(requestHeader: true, requestBody: true, responseBody: false),
+    );
 
   static const String _baseUrl = 'https://tenor.googleapis.com/v2';
-  static const String _apiKey = '################################';
+  static const String _apiKey = '#';
 
   @override
-  Future<HomeData?> loadData({
-    OnErrorCallback? onError,
-    required String q,
-    String? pos
-  }) async {
+  Future<HomeData?> loadData({OnErrorCallback? onError, required String q, String? pos}) async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
         '$_baseUrl/search',
@@ -40,11 +34,7 @@ class GifRepository extends ApiInterface {
       );
 
       final GifsDto dto = GifsDto.fromJson(response.data!);
-      return HomeData(
-          data: dto.results.map((e) => e.toDomain()).toList(),
-          nextPos: dto.next
-      );
-
+      return HomeData(data: dto.results.map((e) => e.toDomain()).toList(), nextPos: dto.next);
     } on DioException catch (e) {
       onError?.call(e.error?.toString());
       return null;
